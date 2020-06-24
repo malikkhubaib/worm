@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "132329432190",
+    "firebase_url": "https://worm-8701c.firebaseio.com",
+    "project_id": "worm-8701c",
+    "storage_bucket": "worm-8701c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132329432190:android:489691c3e31d364f17a42f",
+        "android_client_info": {
+          "package_name": "com.worm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "132329432190-0qu7v3dmvsv48g099cveodq04o63659g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgpk1A7blkl8Qpd0U_n-epQz_fP1FQE1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "132329432190-0qu7v3dmvsv48g099cveodq04o63659g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
