@@ -4,7 +4,11 @@ import { View, Text, Button, StyleSheet, ProgressBarAndroid, ToastAndroid } from
 import RNFetchBlob from "react-native-fetch-blob";
 
 import axios from 'axios'
-import { db, auth } from './config';
+import { db, auth, isLiked, likeUnlike, addToBackupPlaylist, downloadSong } from './config';
+
+
+
+
 
 class SongDetailsDirectoryScreen extends React.Component {
     constructor(props) {
@@ -19,48 +23,23 @@ class SongDetailsDirectoryScreen extends React.Component {
             userId: "5e5d9967aad37740b0ca9df5"
         }
 
-        // this.isLikedOrNot()
+        this.isLikedOrNot()
 
     }
 
-    isLikedOrNot = () => {
-        let songId = this.state.details._id
-        axios.get("http://192.168.1.4:3000/users/" + this.state.userId + "/likedPlaylist/")
-            .then((res) => {
-                let songs = res.data.songs
-                for (let i = 0; i < songs.length; i++) {
-                    if (songs[i]._id == this.state.details.songId) {
-                        this.setState({ liked: true })
-                        return
-                    }
-                }
-            })
+    isLikedOrNot = async () => {
+        let songId = this.state.id
+        let userId = auth.currentUser.uid
+        let x = await isLiked(songId, userId)
+        console.log("liked: ", x)
+        this.setState({ liked: x })
     }
 
-    likeOrUnlike = () => {
-        let songId = this.state.details._id
-        let url = "http://192.168.1.4:3000/users/" + this.state.userId + "/likedPlaylist"
-        console.log(url)
-        if (this.state.liked) {
-            axios.delete(url, { songId: songId })
-                .then((res) => {
-                    if (res.data.err) {
-                        alert(res.data.err.message)
-                    } else {
-                        this.setState({ liked: false })
-                    }
-                })
-        } else {
-            axios.post(url, { songId: songId })
-                .then((res) => {
-                    if (res.data.err) {
-                        alert(res.data.err.message)
-                    } else {
-                        this.setState({ liked: true })
-
-                    }
-                })
-        }
+    likeOrUnlike = async () => {
+        let userId = auth.currentUser.uid
+        let songId = this.state.id
+        let x = await likeUnlike(songId, userId)
+        this.setState({ liked: x })
     }
 
     render() {
@@ -80,35 +59,43 @@ class SongDetailsDirectoryScreen extends React.Component {
                     />
                 </View>
                 <Text style={{ marginBottom: 20 }}></Text>
-                <Text>Download Progress: </Text>
+                {this.state.progress != 0 && <View>
+
+                    <Text>Download Progress: </Text>
 
 
-                <ProgressBarAndroid
-                    styleAttr="Horizontal"
-                    indeterminate={false}
-                    progress={this.state.progress}
-                />
+                    <ProgressBarAndroid
+                        styleAttr="Horizontal"
+                        indeterminate={false}
+                        progress={this.state.progress}
+                    />
+                </View>}
                 <View style={{ alignItems: 'center' }} >
 
                     <Button
                         title="Download"
                         color="#3f51b5"
-                        onPress={() => this.downloadSong()} />
+                        onPress={() => this.dSong()}
+                    />
 
                     <Text style={{ marginBottom: 150 }}></Text>
-                    <Button
-                        title="Add to backup playlist"
-                        color="#3f51b5"
-                        onPress={() => this.addToBackupPlaylist()} />
+
                     <Text style={{ marginBottom: 5 }} />
+
                     <Button
                         title="Delete"
                         color="#e74c3c"
-                        onPress={() => this.deleteSong()} />
+                        onPress={() => { this.deleteSong() }}
+                    />
                 </View>
             </View >
         )
     }
+    dSong = () => {
+        downloadSong(this.state.id, this);
+    }
+
+
     deleteSong = () => {
         let songId = this.state.id
         console.log('"' + songId + '"')
@@ -120,7 +107,7 @@ class SongDetailsDirectoryScreen extends React.Component {
             console.log("keys", Object.keys(snap))
             console.log(val.user, uid, val.user == uid)
             if (val.user == uid) {
-                child.remove( async(com) => {
+                child.remove(async (com) => {
                     console.log(com)
                     this.props.navigation.navigate("Songs Directory")
                 }).catch(err => {
@@ -158,38 +145,6 @@ class SongDetailsDirectoryScreen extends React.Component {
         }
     }
 
-    downloadSong = () => {
-        let ext = this.state.song.download_url.split('?')[0].split('.')
-        ext = ext[ext.length - 1]
-        let filePath = RNFetchBlob.fs.dirs.DownloadDir + '/' + this.state.song.meta.title + '.' + ext;
-        //let filePath = RNFetchBlob.fs.dirs.DownloadDir + '/a.mp3';
-        console.log(filePath)
-        let that = this
-        RNFetchBlob.fetch('GET', this.state.song.download_url)
-            .progress((received, total) => {
-                console.log('progress', received / total)
-                that.setState({ progress: (received / total) })
-            })
-            .then((res) => {
-
-                //console.log(res)
-                RNFetchBlob.fs.writeFile(filePath, res.base64(), 'base64')
-                    .then(response => {
-                        console.log('Success Log: ' + response);
-                        ToastAndroid.show("File downloaded to location: " + filePath, ToastAndroid.LONG)
-                        this.setState({ progress: 1 })
-                    })
-                    .catch(errors => {
-                        console.log(" Error Log: " + errors);
-                    })
-
-            })
-            // Something went wrong:
-            .catch((errorMessage, statusCode) => {
-                // error handling
-                console.log(errorMessage)
-            })
-    }
 }
 
 

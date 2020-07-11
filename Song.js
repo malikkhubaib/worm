@@ -9,7 +9,8 @@ class Song extends React.Component {
     render() {
         return (
             <TouchableOpacity onPress={()=>this.props.navigation.navigate("Song Details", {song: this.props.song, id: this.props.id})}>
-                <View style={{marginBottom: 20, borderBottomColor: "black", borderBottomWidth: 1, paddingBottom: 10}}>
+                <View style={{marginBottom: 20,  paddingBottom: 10}}>
+                    {/* borderBottomColor: "black", borderBottomWidth: 1, */}
                     <Text style={{ fontSize: 18, fontWeight: "bold" }}>{this.props.song.meta.title}</Text>
                     <Text>{this.props.song.meta.artists}</Text>
                     <Text>{this.props.song.meta.album}</Text>

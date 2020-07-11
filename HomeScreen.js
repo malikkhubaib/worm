@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, Button, ToastAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import {db, auth} from './config'
+import {db, auth, loginWithEmailPassword} from './config'
 
 class HomeScreen extends React.Component {
     constructor(props) {
@@ -13,13 +13,9 @@ class HomeScreen extends React.Component {
         var email, pwd
         email = "khubaib@gmail.com"
         pwd = "123456"
-        auth.signInWithEmailAndPassword(email, pwd).then(r => {
-            console.log(r)
-            console.log(Object.keys(r))
-            ToastAndroid.show("Login successful!", ToastAndroid.SHORT)
-        }).catch(err => {
-            ToastAndroid.show(err.toString(), ToastAndroid.SHORT)
-        })
+        loginWithEmailPassword(email, pwd)
+        console.log(auth.currentUser)
+
     }
     render() {
         return (

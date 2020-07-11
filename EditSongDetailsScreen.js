@@ -5,7 +5,7 @@ import { View, Text, Button, StyleSheet, TextInput, ProgressBarAndroid, ToastAnd
 import axios from 'axios'
 import Axios from 'axios';
 
-import { db, storage, auth } from './config'
+import { db, storage, auth, addToBackupPlaylist } from './config'
 
 const styles = StyleSheet.create({
     textInput: {
@@ -122,6 +122,7 @@ class EditSongDetailsScreen extends React.Component {
     addSongToList = async (ref) => {
         var uid = auth.currentUser.uid
         var downloadUrl = await ref.getDownloadURL()
+
         console.log("Download: " + downloadUrl)
         var child = db.ref("songs/").push()
         var song = {
@@ -130,10 +131,15 @@ class EditSongDetailsScreen extends React.Component {
             user: uid
         }
         child.set(song)
+        let songId = (await child).key
+
+        ToastAndroid.show("Adding to backup playlist", ToastAndroid.SHORT)
+        addToBackupPlaylist(songId, uid)
+
         ToastAndroid.show("Added to list!", ToastAndroid.SHORT)
         this.props.navigation.navigate("Song Details", {
             song: song,
-            id: (await child).key
+            id: songId
         })
     }
 }
